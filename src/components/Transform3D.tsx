@@ -81,8 +81,8 @@ const Transform3D: React.FC<Transform3DProps> = ({
     // Setup cameras with better initial position
     leftCameraRef.current = new THREE.PerspectiveCamera(45, SCENE_WIDTH / SCENE_HEIGHT, 0.1, 1000);
     rightCameraRef.current = new THREE.PerspectiveCamera(45, SCENE_WIDTH / SCENE_HEIGHT, 0.1, 1000);
-    leftCameraRef.current.position.set(15, 15, 15);
-    rightCameraRef.current.position.set(15, 15, 15);
+    leftCameraRef.current.position.set(0, 300, 0);
+    rightCameraRef.current.position.set(0, 300, 0);
     leftCameraRef.current.lookAt(0, 0, 0);
     rightCameraRef.current.lookAt(0, 0, 0);
 
@@ -134,17 +134,18 @@ const Transform3D: React.FC<Transform3DProps> = ({
     const configureControls = (controls: OrbitControls) => {
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.minDistance = 5;
-      controls.maxDistance = 50;
-      controls.maxPolarAngle = Math.PI / 1.5;
+      controls.minDistance = 200;
+      controls.maxDistance = 400;
+      controls.maxPolarAngle = Math.PI / 2;
+      controls.minPolarAngle = 0;
     };
 
     configureControls(leftControlsRef.current);
     configureControls(rightControlsRef.current);
 
     // Add grid and axes with better visibility
-    const gridHelper = new THREE.GridHelper(20, 20, 0x666666, 0xcccccc);
-    const axesHelper = new THREE.AxesHelper(10);
+    const gridHelper = new THREE.GridHelper(300, 30, 0x666666, 0xcccccc);
+    const axesHelper = new THREE.AxesHelper(150);
     leftSceneObjRef.current.add(gridHelper);
     leftSceneObjRef.current.add(axesHelper);
     rightSceneObjRef.current.add(gridHelper.clone());
@@ -187,24 +188,26 @@ const Transform3D: React.FC<Transform3DProps> = ({
   }, [SCENE_WIDTH, SCENE_HEIGHT]);
 
   const createPoint = (point: Point3D, color: number): THREE.Object3D => {
-    const geometry = new THREE.SphereGeometry(0.15, 32, 32);
+    const geometry = new THREE.SphereGeometry(3, 32, 32);
     const material = new THREE.MeshPhongMaterial({ 
       color,
       shininess: 100,
-      specular: 0x444444
+      specular: 0x444444,
+      emissive: color,
+      emissiveIntensity: 0.7
     });
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(point.x, point.y, point.z);
     
     // Add a subtle shadow effect
-    const shadowGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+    const shadowGeometry = new THREE.SphereGeometry(2, 16, 16);
     const shadowMaterial = new THREE.MeshBasicMaterial({ 
       color: 0x000000,
       transparent: true,
-      opacity: 0.2
+      opacity: 0.4
     });
     const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
-    shadow.position.set(point.x, point.y - 0.15, point.z);
+    shadow.position.set(point.x, point.y - 0.1, point.z);
     shadow.scale.set(1, 0.1, 1);
     
     const group = new THREE.Group();
@@ -274,7 +277,7 @@ const Transform3D: React.FC<Transform3DProps> = ({
     raycaster.ray.intersectPlane(plane, intersectPoint);
 
     // Limit the point coordinates to stay within a reasonable range
-    const clampValue = 5;
+    const clampValue = 150;
     const newPoint = {
       x: Math.max(-clampValue, Math.min(clampValue, intersectPoint.x)),
       y: Math.max(-clampValue, Math.min(clampValue, intersectPoint.y)),
@@ -315,7 +318,11 @@ const Transform3D: React.FC<Transform3DProps> = ({
     const vector = new THREE.Vector3(point.x, point.y, point.z);
     vector.applyMatrix4(matrix);
     
-    return { x: vector.x, y: vector.y, z: vector.z };
+    return { 
+      x: vector.x, 
+      y: vector.y, 
+      z: vector.z 
+    };
   };
 
   const handleTransform = () => {

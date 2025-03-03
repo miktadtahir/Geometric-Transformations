@@ -50,8 +50,8 @@ function App() {
           href="https://github.com/miktadtahir/Geometric-Transformations"
           target="_blank"
           rel="noopener noreferrer"
-          sx={{ 
-            display: 'flex', 
+              sx={{ 
+                display: 'flex', 
             alignItems: 'center', 
             textDecoration: 'none',
             color: 'text.primary',
@@ -63,7 +63,7 @@ function App() {
           <GitHubIcon sx={{ mr: 1 }} />
           <Typography>View on GitHub</Typography>
         </Link>
-      </Box>
+            </Box>
       
       {currentComponent}
     </Container>
